@@ -41,3 +41,136 @@ document.addEventListener("DOMContentLoaded", () => {
       timeLimit: 60,
       passingScore: 60,
     }; 
+    
+    // ฟังก์ชันหลัก
+  function startQuiz() {
+    selectedQuestions = getRandomQuestions(quiz.questions, 5); // สุ่มเลือกคำถาม 5 ข้อ
+    userAnswers = {};
+    timeLeft = quiz.timeLimit;
+    quizContainer.classList.remove("hidden");
+    resultContainer.classList.add("hidden");
+    startBtn.classList.add("hidden");
+    startTimer();
+    displayQuestions();
+  }
+
+  function submitQuiz() { // ส่งคำตอบ
+    clearInterval(timerInterval); 
+    selectedQuestions.forEach((question) => {
+      const selectedAnswer = document.querySelector(
+        `input[name="question${question.id}"]:checked`
+      );
+      userAnswers[question.id] = selectedAnswer ? selectedAnswer.value : null;
+    });
+    const score = calculateScore(); // คำนวณคะแนน
+    showResults(score);
+    saveToLocalStorage(quiz); 
+  }
+
+  function calculateScore() {
+    let correctAnswers = 0; 
+    selectedQuestions.forEach((question) => {
+      if (userAnswers[question.id] === question.correct) {
+        correctAnswers++;
+      }
+    });
+    return (correctAnswers / selectedQuestions.length) * 100; // คะแนนเต็ม 100
+  }
+
+  function showResults(score) { // แสดงผล
+    quizContainer.classList.add("hidden");
+    resultContainer.classList.remove("hidden");
+    scoreDisplay.textContent = `คะแนนของคุณ: ${score.toFixed(2)}%`;
+    answersDisplay.innerHTML = selectedQuestions
+      .map((question) => {
+        const userAnswer = userAnswers[question.id];
+        const isCorrect = userAnswer === question.correct;
+        const answerClass = isCorrect ? "text-green-500" : "text-red-500"; // สี ถูก ผิด
+        return `
+          <div class="mb-4">
+            <p class="font-medium">${question.text}</p>
+            <p class="${answerClass}">คำตอบที่เลือก: ${userAnswer || "ไม่ได้ตอบ"}</p>
+            <p>คำตอบที่ถูกต้อง: ${question.correct}</p>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  function getRandomQuestions(questions, count) {
+    const shuffled = questions.sort(() => 0.5 - Math.random()); // สุ่มคำถาม เท่ากับ5หรือน้อยกว่า
+    return shuffled.slice(0, count);
+    //shuffle สลับ
+  }
+
+  function getRandomQuestions(questions, count) {
+    try {
+      const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+      return shuffledQuestions.slice(0, count);
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการสุ่มคำถาม", error);
+      return [];
+    }
+  }
+
+  function displayQuestions() {
+    questionContainer.innerHTML = "";
+    selectedQuestions.forEach((question, index) => {
+      const questionElement = document.createElement("div");
+      questionElement.classList.add("mb-5"); 
+      questionElement.innerHTML = `
+                <p class="font-semibold">${index + 1}. ${question.text}</p>
+                ${question.choices
+                  .map(
+                    (choice) => `
+                    <label class="block mt-2">
+                        <input type="radio" name="question${question.id}" value="${choice}" class="mr-2">
+                        ${choice}
+                    </label>
+                `
+                  )
+                  .join("")}
+            `;
+      questionContainer.appendChild(questionElement);
+    });
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = `เวลาที่เหลือ: ${timeLeft} วินาที`;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        submitQuiz();
+      }
+    }, 1000);
+  }
+
+  function saveToLocalStorage(quiz) { // บันทึกข้อมูล
+    try {
+      localStorage.setItem("quiz", JSON.stringify(quiz));
+      console.log("บันทึกข้อมูลควิซลง localStorage สำเร็จ");
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลลง localStorage", error);
+      return null;
+    }
+  }
+  
+  function getFromLocalStorage(quiz) { // ดึงข้อมูลจาก localStorage
+    try {
+      const quizData = localStorage.getItem("quiz");
+      return quizData ? JSON.parse(quizData) : quiz;
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลจาก localStorage", error);
+      return quiz;
+    }
+  }
+
+  // เริ่มต้นทำงานจริงๆตรงนี้
+  startBtn.addEventListener("click", startQuiz); // ปุ่มเริ่ม
+  submitBtn.addEventListener("click", submitQuiz); // ปุ่มส่งคำตอบ
+  restartBtn.addEventListener("click", () => { // เริ่มใหม่
+    resultContainer.classList.add("hidden");
+    startBtn.classList.remove("hidden");
+  });
+});
