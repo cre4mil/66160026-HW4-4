@@ -41,7 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
       timeLimit: 60,
       passingScore: 60,
     }; 
-    
+    saveToLocalStorage(quiz);
+    quiz = getFromLocalStorage(quiz); 
+
     // ฟังก์ชันหลัก
   function startQuiz() {
     selectedQuestions = getRandomQuestions(quiz.questions, 5); // สุ่มเลือกคำถาม 5 ข้อ
