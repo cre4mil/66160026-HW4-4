@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบควิซออนไลน์</title>
+</head>
+
+<body>
+    <div>
+        <div>
+            <h1>ระบบควิซออนไลน์</h1>
+        </div>
+
+        <div id="quiz-container" class="hidden">
+            <div id="timer">
+                เวลาที่เหลือ: <span>00:00</span>
+            </div>
+
+            <div id="question-container"></div>
+
+            <button id="submit-btn">
+                ส่งคำตอบ
+            </button>
+        </div>
+
+        <div id="result-container" class="hidden">
+            <h2>ผลลัพธ์การทดสอบ</h2>
+
+            <div id="score"></div>
+
+            <div id="answers"></div>
+
+            <button id="restart-btn">
+                เริ่มทำข้อสอบใหม่
+            </button>
+        </div>
+
+        <button id="start-btn">
+            เริ่มทำข้อสอบ
+        </button>
+    </div>
+
+    <script src="quiz.js"></script>
+</body>
+
+</html>
